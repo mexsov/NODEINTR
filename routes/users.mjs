@@ -29,7 +29,7 @@ router.get("/", userController.getUsers);
  
 // router.get("/:id/reservations",validate(validateReservationParams), userController.getUserReservations);
  
-// router.post("/:userId/reservations/:bookId", userController.createReservation);
+router.post("/:userId/reservations/:bookId", userController.createReservation);
  
 // router.delete("/:userId/reservations/:bookId", userController.deleteReservation)
  

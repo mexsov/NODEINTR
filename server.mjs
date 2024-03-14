@@ -65,7 +65,7 @@
 import express from 'express';
 
 import usersRouter from "./routes/index.mjs"
-import authorsRouter from "./routes/author.mjs"
+import authorsRouter from "./routes/index.mjs"
 import cookies from './middleware/cookies.mjs'
 import booksRouter from "./routes/index.mjs"
 import { connectDB } from './db/postgresConnection.mjs';

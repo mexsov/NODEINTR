@@ -14,6 +14,22 @@ res.status(200).json(users);
     }
   },
  
+  createReservation: async (req, res) => {
+        try {
+    
+    const { book } = await userModel.createReservation(req.params)
+     
+          res.status(200).json({ message: "Book successfully reserved", book }); // status req 400 nes kliento puse arba 404
+        } catch (error) {
+          res
+            .status(500)
+            .json({ message: "an error occured while  creating a reservation" }); // serverio 500 status req
+        }
+      },
+
+
+
+
 //   createUser: async (req, res) => {
 //     try {
 //       const newUser = {
