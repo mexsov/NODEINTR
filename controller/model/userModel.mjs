@@ -16,6 +16,48 @@ return users.rows
     console.error(error);
 }
     },
+
+createUser: async (newUser)=>{
+    try {
+        const { username, email, password, registered_on, role = "user"}= newUser;
+        const result = await pool.query(`INSERT INTO users (username, email, password, registered_on, role) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [username, email, password, registered_on, role])
+
+        return result.rows[0];
+    } catch (error) {
+        console.error(error)
+        throw error;
+    }
+},
+
+login: async ({ username, email })=>{
+    const result = await pool.query(`SELECT * FROM users WHERE username= $1 OR email=$2`, [username, email]);
+
+if(result.rows.length === 0 ){
+    throw new Error("User not found")
+}
+const user = result.rows[0];
+return user
+
+
+},
+
+getUserById: async (userId)=>{
+    const result = await pool.query(`SELECT * FROM users WHERE id = $1`, [users])
+    return result.rows[0];
+}
+
+
+getUserByEmail: async ({email})=> {
+    try {
+        const result = await pool.query(`SELECT * users WHERE email = $1`, [email]);
+        return result.rows[0];
+    } catch (error) {
+        console.error(error)
+        throw error;
+    }
+},
+
+
     createReservation: async({userId, bookId })=> {
         const userResult = await pool.query(`SELECT * FROM users WHERE id = $1`, [userdId]);
         const bookResult = await pool.query(`SELECT FROM books WHERE id = $1`, [bookId]);
@@ -31,7 +73,7 @@ return users.rows
         if (reservation){
             throw new Error ("Book is already reserved by the user")
         }
-        if (book.quantity ===0 || !book.available){
+        if (book.quantity === 0 || !book.available){
             throw new Error("Book is not available");
         }
         await pool.query(`INSERT INTO reservations (user_id, book_id) VALUES ($1, $2)`, [userId, bookId])

@@ -1,4 +1,5 @@
 import userModel from "./model/userModel.mjs";
+import bcrypt from "bcrypt"
 
 
 
@@ -30,56 +31,61 @@ res.status(200).json(users);
 
 
 
-//   createUser: async (req, res) => {
-//     try {
-//       const newUser = {
-//         ...req.body,
-//         registered_on: new Date().toISOString().split("T")[0],
-//         reservation: [],
-//       };
-//       users.push(newUser);
-//       users.forEach((user, index) => {
-//         user.id = index + 1;
-//       });
+  createUser: async (req, res) => {
+    try {
+      const {username, email, password, repeatPassword, registered_on, role = "user"} = req.body;
+      const existingUser = await userModel.getUserByEmail(email);
+
+      if(existingUser){
+        res.status(400).json({ message: " Email already exists"});
+        return;
+      }
+
+if (password !== repeatPassword){
+  res.status(400).json({message:"Password do not match"})
+  return;
+}
+
+const hashedPassword = await bcrypt.hash(password, 10)
+
+
+const newUser={
+  username, email, password: hashedPassword, registered_on: new Date, role, reservation: [],
+}
+const createUser = await userModel.createUser(newUser)
+      
+      res.status(201).json(newUser);
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ message: "An error occured while retrieving users" });
+    }
+  },
  
-//       await fs.promises.writeFile(
-//         path.join(__dirname, "../db/users.json"),
-//         JSON.stringify(users, null, 2)
-//       );
-//       res.status(201).json(newUser);
-//     } catch (error) {
-//       console.error(error);
-//       res
-//         .status(500)
-//         .json({ message: "An error occured while retrieving users" });
-//     }
-//   },
- 
 
-//   login: async(req,res)=>{
-//     try {
-//       const { username, password, email } = req.body;
-//       const user = users.find(user => user.username === username || user.email === email);
-//       if(!user){
-//         res.status(404).json({ message: "user not found"})
-//         return;
-//       }
-
-// if (user.password !== password){
-//   res.status(401).json({ message: "Invalid password"});
-//   return;
-// }
-
-// req.session.userId = user.id;
-// res.status(200).json({message: "user logged in successfully"})
+  login: async(req,res)=>{
+    try {
+      const { username, email } = req.body;
+      const user = users.find(user => await userModel.login({ username, email}) );
+      
 
 
-//     } catch (error) {
-//       res
-//         .status(500)
-//         .json({ message: "An error occured while logging in" });
-//     }
-//   },
+res.status(200).json({message: "user logged in successfully"})
+
+
+    } catch (error) {
+      if (error.message === "User not found" || error.message === "Invalid credentials"){
+        res.status(401).json({message: error.message})
+
+      } else {
+        res
+        .status(500)
+        .json({ message: "An error occured while logging in" });
+      }
+      
+    }
+  },
 
 // logout:(req,res)=>{
 //   try {

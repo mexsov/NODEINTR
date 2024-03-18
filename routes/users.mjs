@@ -1,9 +1,12 @@
 
 
 import express from "express";
-// import { validate} from "../middleware/schemaValidator.mjs"
+import { validate} from "../middleware/schemaValidator.mjs"
 import userController from "../controller/userController.mjs";
-// import { userValidationSchema, updateUserValidationSchema, validateUserId, validateReservationParams } from "../validators/userValidator.mjs"
+import { userValidationSchema, updateUserValidationSchema, validateUserId, validateReservationParams } from "../validators/userValidator.mjs"
+import { validationResult } from "express-validator";
+import { Passport } from "../strategies/auth.mjs";
+import passport from "passport";
 
 
 
@@ -13,9 +16,16 @@ const router = express.Router();
  
 router.get("/", userController.getUsers);
  
-// router.post("/register",validate(userValidationSchema), userController.createUser);
+router.post("/register",userValidationSchema,(req, res, next)=>{
+    const errors = validationResult(req);
+    if (!errors.isEmpty()){
+        return res.status(400).json({ errors: errors.array() })
+    }
+    next()
+} , 
+userController.createUser);
  
-// router.post("/login", userController.login);
+router.post("/login",passport.authenticate("local",{session: false}), userController.login);
 
 // router.post("/logout", userController.logout);
 
