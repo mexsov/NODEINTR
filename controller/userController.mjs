@@ -67,7 +67,7 @@ const createUser = await userModel.createUser(newUser)
   login: async(req,res)=>{
     try {
       const { username, email } = req.body;
-      const user = users.find(user => await userModel.login({ username, email}) );
+      const user =  await userModel.login({ username, email}) ;
       
 
 

@@ -1,5 +1,5 @@
 import { checkSchema, param } from "express-validator";
-import {userModel} from "../controller/model/userModel.mjs"
+import userModel from "../controller/model/userModel.mjs";
 
 
 export const userValidationSchema = checkSchema({
@@ -47,6 +47,27 @@ export const userValidationSchema = checkSchema({
         }
     }
 });
+
+export const loginValidationSchema = [
+    checkSchema({
+        login: {
+            notEmpty:{
+                errorMessage: "Email or username cannot be empty",
+            },
+            custom:{
+                options:(value) => {
+                    return value.includes("@") ? checkSchema ({email: { isEmail: true}}) : typeof value === "string"
+                },
+                errorMessage: "Login must be a valid email", 
+            },
+        },
+        password:{
+            notEmpty:{
+                errorMessage: "Password cannot be empty",
+            },
+        }
+    })
+]
 
 export const updateUserValidationSchema = checkSchema({
     username:{

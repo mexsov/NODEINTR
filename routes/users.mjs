@@ -3,10 +3,12 @@
 import express from "express";
 import { validate} from "../middleware/schemaValidator.mjs"
 import userController from "../controller/userController.mjs";
-import { userValidationSchema, updateUserValidationSchema, validateUserId, validateReservationParams } from "../validators/userValidator.mjs"
+import { userValidationSchema, updateUserValidationSchema, validateUserId, validateReservationParams, loginValidationSchema } from "../validators/userValidator.mjs"
 import { validationResult } from "express-validator";
-import { Passport } from "../strategies/auth.mjs";
-import passport from "passport";
+import  passport  from "../strategies/auth.mjs";
+import { isUser } from "../middleware/roleCheck.mjs";
+import jwt from "jsonwebtoken";
+
 
 
 
@@ -25,7 +27,10 @@ router.post("/register",userValidationSchema,(req, res, next)=>{
 } , 
 userController.createUser);
  
-router.post("/login",passport.authenticate("local",{session: false}), userController.login);
+router.post('/login',validate(loginValidationSchema), passport.authenticate('local', {session: false}), (req, res) => {
+    const token = jwt.sign({ id: req.user.id, role: req.user.role }, 'secret', { expiresIn: '1h' });
+    res.status(200).json({ message: 'Logged', token })
+} , userController.login)
 
 // router.post("/logout", userController.logout);
 
@@ -39,7 +44,7 @@ router.post("/login",passport.authenticate("local",{session: false}), userContro
  
 // router.get("/:id/reservations",validate(validateReservationParams), userController.getUserReservations);
  
-router.post("/:userId/reservations/:bookId", userController.createReservation);
+router.post("/:userId/reservations/:bookId",validate(validateReservationParams),passport.authenticate('jwt', { session: false }),isUser, userController.createReservation);
  
 // router.delete("/:userId/reservations/:bookId", userController.deleteReservation)
  

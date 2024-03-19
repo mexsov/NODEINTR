@@ -6,9 +6,9 @@ const localStrategy = new LocalStrategy(
   {
     usernameField: "login",
     passwordField: "password",
-    passReqToCallback: true,
+    
   },
-  async (req, login, password, done) => {
+  async (login, password, done) => {
     try {
       const user = await userModel.login({ username: login, email: login });
       const match = await bcrypt.compare(password, user.password);

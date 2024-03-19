@@ -1,11 +1,13 @@
 import passport from "passport";
-import localStrategy from "./localStrategy.mjs";
+import localStrategy from "../strategies/localStrategy.mjs";
+import createJwtStartegy from "./jwtStrategy.mjs";
 
-const initializePassport = async ()=>{
+const initializePassport = async () => {
     passport.use(localStrategy)
-}
+    const jwtStrategy = await createJwtStartegy();
+    passport.use(jwtStrategy)
+};
 
-initializePassport()
-return passport;
+initializePassport();
 
 export default passport;
